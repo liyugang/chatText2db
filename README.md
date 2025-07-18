@@ -2,14 +2,14 @@
 
 ## 项目简介
 
-本项目为一套基于 Node.js + Vue3 的智能急诊分诊系统，包含前端（vue-project）和后端（AiServer），支持 AI 智能分诊、数据库结构自动读取、MCP配置管理等功能。
+本项目为一套基于 Node.js + Vue3 的智能自然语言查询数据库系统，包含前端（vue-project）和后端（AiServer），支持 AI聊天、 数据库结构自动读取、自然语言查询数据库、MCP配置管理等功能。
 
 ---
 
 ## 技术栈
 
 - **前端**：Vue3 + Element Plus + Vite
-- **后端**：Node.js (20+) + Express + pm2 + Mongoose/MongoDB
+- **后端**：Node.js (20+) + Express + pm2 + mysql
 - **AI服务**：支持 OpenAI/DeepSeek 等兼容 OpenAI API 的大模型
 - **数据库**：MySQL（通过 MCP 连接）
 
@@ -67,15 +67,12 @@ npm install
 
 ### 3. 配置后端环境
 
-- 修改 `AiServer/data/settings.json`，配置 AI 接口、数据库等参数。
-- 如需自定义数据库连接，编辑 `.env` 或通过 MCP 配置管理界面设置。
+- ai聊天数据库配置，编辑 `.env` 。
 
 ### 4. 启动后端（用 pm2）
 
 ```bash
 cd AiServer
-pm run build # 如有构建步骤
-pm run migrate # 如有数据库迁移
 pm2 start src/index.js --name ai-server
 # 查看状态
 pm2 logs ai-server
