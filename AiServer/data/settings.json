@@ -1,0 +1,32 @@
+{
+  "isDarkMode": true,
+  "apiKey": "sk-f984ee54aed545ccb82c04cef3afda74",
+  "apiEndpoint": "http://localhost:3000",
+  "apiModel": "deepseek-chat",
+  "thirdPartyApiKey": "sk-f984ee54aed545ccb82c04cef3afda74",
+  "thirdPartyApiEndpoint": "https://api.deepseek.com",
+  "thirdPartyApiModel": "deepseek-chat",
+  "useThirdPartyApi": true,
+  "fontSize": "large",
+  "showTimestamp": true,
+  "mcpConfigs": [
+    {
+      "id": "1752745419949",
+      "name": "emgicu_pt",
+      "description": "192.168.126.247",
+      "config_json": "{\"MYSQL_HOST\":\"192.168.126.247\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"root\",\"MYSQL_PASS\":\"aimsn.cn\",\"MYSQL_DB\":\"emgicu_pt\"}",
+      "active": true,
+      "created_at": "2025-07-17T09:43:39.949Z",
+      "updated_at": "2025-07-17T09:43:39.949Z"
+    },
+    {
+      "id": "1752745453086",
+      "name": "aed_edu",
+      "description": "192.168.126.247",
+      "config_json": "{\"MYSQL_HOST\":\"192.168.126.247\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"root\",\"MYSQL_PASS\":\"aimsn.cn\",\"MYSQL_DB\":\"aed_edu\"}",
+      "active": false,
+      "created_at": "2025-07-17T09:44:13.086Z",
+      "updated_at": "2025-07-17T09:44:13.086Z"
+    }
+  ]
+}

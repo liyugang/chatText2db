@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  /* 背景色 */
+  --bg-main: #1e1e1e;
+  --bg-panel: rgba(44, 44, 44, 0.7);
+  --bg-highlight: #e4d3ff;
+  --bg-glass: rgba(44, 44, 44, 0.5);
+  --bg-glass-hover: rgba(58, 58, 58, 0.7);
+  --glass-blur: 10px;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* 文本颜色 */
+  --text-primary: #ffffff;
+  --text-secondary: #cfcfcf;
+  --text-accent: #ffffff;
+  --text-dimmed: #888888;
+  
+  /* 强调色 */
+  --accent-yellow: #ffdc0060;
+  --accent-pink: #ff007f10;
+  --accent-purple: #5e60ce60;
+  --accent-blue: #00d0ff60;
+  
+  /* 排版 */
+  --font-family: 'Inter', sans-serif;
+  --font-weight-heading: 700;
+  --font-weight-subheading: 600;
+  --font-weight-body: 400;
+  --font-size-title: 24px;
+  --font-size-section: 16px;
+  --font-size-meta: 12px;
+  --line-height: 1.5;
+  --letter-spacing-uppercase: 0.05em;
+  
+  /* 布局 */
+  --gap: 16px;
+  --padding: 16px;
+  --border-radius: 0px;
+  --border-radius-glass: 8px;
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: rgba(255, 255, 255, 0.1);
+  
+  /* 组件 */
+  --card-bg: var(--bg-glass);
+  --card-border: var(--glass-border);
+  --card-padding: 12px;
+  --card-hover-bg: var(--bg-glass-hover);
+  
+  --badge-bg: #e4d3ff;
+  --badge-color: #000000;
+  --badge-font-weight: 600;
+  --badge-border-radius: 4px;
+  --badge-padding: 4px 8px;
+  
+  --button-bg: rgba(255, 255, 255, 0.1);
+  --button-color: var(--text-primary);
+  --button-border-radius: 4px;
+  --button-font-weight: 600;
+  
+  /* 网格系统 */
+  --grid-columns: 12;
+  --grid-gutter: 24px;
+  --grid-margin: 32px;
+}
+
+/* 全局基础样式 */
+body {
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+  /* 添加背景渐变 */
+  background: linear-gradient(135deg, #1e1e1e 0%, #2c2c2c 50%, #1e1e1e 100%);
+  background-attachment: fixed;
+  background-size: 200% 200%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 毛玻璃效果混合 */
+.glass-effect {
+  background: var(--bg-glass);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--border-radius-glass);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-heading);
+  margin-top: 0;
+}
+
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+button {
+  background-color: var(--button-bg);
+  color: var(--button-color);
+  border: none;
+  border-radius: var(--button-border-radius);
+  font-weight: var(--button-font-weight);
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: all 0.2s;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* 布局容器 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--padding);
+}
+
+/* 卡片组件 */
+.card {
+  background: var(--card-bg);
+  border: var(--card-border);
+  padding: var(--card-padding);
+  border-radius: var(--border-radius-glass);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  background-color: var(--card-hover-bg);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 徽章组件 */
+.badge {
+  background-color: var(--badge-bg);
+  color: var(--badge-color);
+  font-weight: var(--badge-font-weight);
+  border-radius: var(--badge-border-radius);
+  padding: var(--badge-padding);
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+/* 列表项组件 */
+.list-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.list-item-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.list-item-date {
+  font-size: 12px;
+  color: var(--text-dimmed);
+}

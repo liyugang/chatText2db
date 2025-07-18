@@ -1,0 +1,109 @@
+{
+    "designSystem": {
+      "name": "Neo-Brutalism UI - Part 2",
+      "theme": {
+        "background": {
+          "main": "#1e1e1e",
+          "panel": "#2c2c2c",
+          "highlight": "#e4d3ff"
+        },
+        "text": {
+          "primary": "#ffffff",
+          "secondary": "#cfcfcf",
+          "accent": "#ffffff",
+          "dimmed": "#888888"
+        },
+        "accentColors": [
+          "#ffdc00",
+          "#ff007f",
+          "#5e60ce",
+          "#00d0ff"
+        ]
+      },
+      "typography": {
+        "fontFamily": "Inter, sans-serif",
+        "fontWeight": {
+          "heading": "700",
+          "subheading": "600",
+          "body": "400"
+        },
+        "fontSizes": {
+          "title": "24px",
+          "sectionTitle": "16px",
+          "meta": "12px"
+        },
+        "lineHeight": {
+          "default": "1.5"
+        },
+        "letterSpacing": {
+          "uppercase": "0.05em"
+        }
+      },
+      "layout": {
+        "type": "auto-layout",
+        "direction": "vertical",
+        "gap": "16px",
+        "padding": "16px",
+        "radius": "0px",
+        "border": {
+          "width": "1px",
+          "style": "solid",
+          "color": "#ffffff"
+        },
+        "shadow": "none"
+      },
+      "components": {
+        "card": {
+          "background": "#2c2c2c",
+          "border": "1px solid #ffffff",
+          "padding": "12px",
+          "imageSize": "80x80",
+          "textAlign": "left",
+          "hover": {
+            "background": "#3a3a3a"
+          }
+        },
+        "badge": {
+          "textTransform": "uppercase",
+          "background": "#e4d3ff",
+          "color": "#000000",
+          "fontWeight": "600",
+          "borderRadius": "4px",
+          "padding": "4px 8px"
+        },
+        "button": {
+          "style": "filled",
+          "background": "#ffffff",
+          "textColor": "#000000",
+          "borderRadius": "4px",
+          "fontWeight": "600"
+        },
+        "listItem": {
+          "layout": "horizontal",
+          "gap": "12px",
+          "thumbnail": true,
+          "title": {
+            "fontWeight": "600",
+            "fontSize": "14px"
+          },
+          "date": {
+            "fontSize": "12px",
+            "color": "#888888"
+          }
+        }
+      },
+      "gridSystem": {
+        "columns": 12,
+        "gutter": "24px",
+        "margin": "32px"
+      },
+      "variables": {
+        "color.primary": "#ffffff",
+        "color.surface": "#2c2c2c",
+        "radius.none": "0px",
+        "spacing.md": "16px",
+        "font.title": "Inter-Bold",
+        "shadow.none": "none"
+      }
+    }
+  } 
