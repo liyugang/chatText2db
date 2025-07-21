@@ -1160,34 +1160,114 @@ pre {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .sidebar {
-    position: absolute;
-    z-index: 10;
-    height: 100%;
-    transform: translateX(0);
-    transition: transform 0.3s;
-  }
-  
-  .sidebar-collapsed {
-    transform: translateX(-210px);
-  }
-  
-  .chat-header h2 {
-    font-size: 18px;
-  }
-  
-  .mcp-toggle-container {
+  .chat-container {
     flex-direction: column;
+    height: 100vh;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 80vw;
+    max-width: 320px;
+    z-index: 100;
+    background: #fff;
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+  }
+  .sidebar-collapsed {
+    transform: translateX(0);
+  }
+  .main-content {
+    flex: 1;
+    width: 100vw;
+    min-width: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  .chat-header {
+    padding: 12px 8px;
+    font-size: 16px;
+  }
+  .messages-container {
+    padding: 12px 4px;
+    padding-bottom: 130px; /* 留出底部空间，避免被MCP和输入区遮挡 */
+  }
+  .message-content {
+    max-width: 80vw;
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+  .message-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    margin-right: 6px;
+    margin-left: 6px;
+  }
+  .input-container {
+    padding: 8px 4px 12px 4px;
+    gap: 6px;
+    border-radius: 0 0 12px 12px;
+    background: #171b1f;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 102;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  }
+  .mcp-toggle-container {
+    padding: 6px 4px;
+    font-size: 13px;
+    display: flex;
+    flex-direction: row;
     align-items: flex-start;
-    gap: 8px;
+    gap: 4px;
+    background: #171b1f;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 60px; /* 输入区高度+margin */
+    z-index: 101;
+    box-shadow: 0 -1px 6px rgba(0,0,0,0.04);
   }
-  
-  .mcp-config-selector {
-    width: 100%;
-  }
-  
   .mcp-config-selector select {
-    width: 100%;
+    font-size: 13px;
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+  .empty-state {
+    font-size: 15px;
+    padding: 30px 0;
+  }
+  .message-text {
+    font-size: 14px;
+    word-break: break-all;
+    overflow-x: auto;
+  }
+  .message-text :deep(table),
+  .message-text :deep(pre),
+  .message-text :deep(code) {
+    font-size: 13px;
+    max-width: 88vw;
+    overflow-x: auto;
+    display: block;
+  }
+  .tool-call-result {
+    font-size: 13px;
+    padding: 4px;
+    overflow-x: auto;
+  }
+  .sidebar-footer, .sidebar-header {
+    padding: 10px 8px;
+  }
+  .conversations-list {
+    padding: 4px;
   }
 }
 </style> 

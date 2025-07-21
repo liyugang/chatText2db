@@ -1,9 +1,9 @@
 {
   "isDarkMode": true,
-  "apiKey": "sk-f984ee54aed545ccb82c04cef3afda74",
+  "apiKey": "",
   "apiEndpoint": "http://localhost:3000",
   "apiModel": "deepseek-chat",
-  "thirdPartyApiKey": "sk-f984ee54aed545ccb82c04cef3afda74",
+  "thirdPartyApiKey": "",
   "thirdPartyApiEndpoint": "https://api.deepseek.com",
   "thirdPartyApiModel": "deepseek-chat",
   "useThirdPartyApi": true,
@@ -15,7 +15,7 @@
       "name": "emgicu_pt",
       "description": "192.168.126.247",
       "config_json": "{\"MYSQL_HOST\":\"192.168.126.247\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"root\",\"MYSQL_PASS\":\"aimsn.cn\",\"MYSQL_DB\":\"emgicu_pt\"}",
-      "active": true,
+      "active": false,
       "created_at": "2025-07-17T09:43:39.949Z",
       "updated_at": "2025-07-17T09:43:39.949Z"
     },
@@ -27,6 +27,15 @@
       "active": false,
       "created_at": "2025-07-17T09:44:13.086Z",
       "updated_at": "2025-07-17T09:44:13.086Z"
+    },
+    {
+      "id": "1752826190298",
+      "name": "emgnws_pt",
+      "description": "192.168.126.247",
+      "config_json": "{\"MYSQL_HOST\":\"192.168.126.247\",\"MYSQL_PORT\":\"3306\",\"MYSQL_USER\":\"root\",\"MYSQL_PASS\":\"aimsn.cn\",\"MYSQL_DB\":\"emgnws_pt\"}",
+      "active": true,
+      "created_at": "2025-07-18T08:09:50.298Z",
+      "updated_at": "2025-07-18T08:09:50.298Z"
     }
   ]
 }

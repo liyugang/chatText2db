@@ -66,49 +66,116 @@ async function handleSSE(req, res) {
             schemaInfo += `表名: ${tableName}\n结构: ${JSON.stringify(schema)}\n`;
           }
         }
-        // 拼接prompt
-        const prompt = `请根据当前问题“${message}”、表名列表“${tableNames}”、表结构信息“${schemaInfo}”，这些信息生成一个解决该问题的mysql语句，要求返还结果只有mysql语句，且最终为一句sql语句，sql语句不要包含注释，如果生成失败则返回失败。`;
-        const aiSql = await chatService.sendToThirdPartyAPI(prompt, res);
-        // 保存AI生成的SQL语句到历史记录
-        await ChatHistory.create({
-          userId: sessionId,
-          sessionId: sessionId,
-          role: 'assistant',
-          content: typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql),
-          userMessage: typeof message === 'string' ? message : JSON.stringify(message)
-        });
-        // 执行SQL语句，获取查询结果
-        let sqlList = [];
-        if (aiSql) {
-          // 支持多条SQL（分号分割，去除空行）
-          const sqlRaw = typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql);
-          sqlList = sqlRaw.split(';').map(s => s.trim()).filter(s => s.length > 0);
-        }
-        let markdownResult = '';
-        markdownResult += '生成的SQL语句：\n';
-        markdownResult += '```sql\n' + (typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql)) + '\n```\n\n';
-        for (let i = 0; i < sqlList.length; i++) {
-          const sql = sqlList[i];
-          let queryResult = null;
-          try {
-            queryResult = await mcpService.runQuery(sql);
-          } catch (e) {
-            queryResult = 'SQL执行失败: ' + (e.message || e);
+        let aiSql, sqlList, markdownResult, allQueryResults, summary, lastMessage;
+        let retried = false;
+        let retrySqlPrompt = '';
+        let lastSql = '';
+        mainLoop: for (let retry = 0; retry < 2; retry++) {
+          // 1. 生成SQL
+          if (retry === 0) {
+            const prompt = `请根据当前问题“${message}”、表名列表“${tableNames}”、表结构信息“${schemaInfo}”，\n这些信息生成一个解决该问题的mysql语句，要求返还结果只有mysql语句，且最终为一句sql语句，\nsql语句不要包含注释，不要生成数据库不存在的字段。`;
+            aiSql = await chatService.sendToThirdPartyAPI(prompt, res);
+          } else {
+            // 重新生成SQL，带上上一次SQL和AI总结
+            retrySqlPrompt = `用户问题: ${message}\n表名列表: ${tableNames}\n表结构信息: ${schemaInfo}\n上一次SQL: ${lastSql}\n上一次AI总结: ${lastMessage}\n\n请修正SQL语句，避免上述错误，返还结果只有mysql语句，且最终为一句sql语句，sql语句不要包含注释，不要生成数据库不存在的字段。`;
+            aiSql = await chatService.sendToThirdPartyAPI(retrySqlPrompt, res);
           }
-          markdownResult += `第${i+1}条SQL：\n`;
-          markdownResult += '```sql\n' + sql + '\n```\n';
-          markdownResult += '查询结果：\n';
-          markdownResult += toMarkdownTable(queryResult);
-          markdownResult += '\n\n';
+          // 保存AI生成的SQL语句到历史记录
+          await ChatHistory.create({
+            userId: sessionId,
+            sessionId: sessionId,
+            role: 'assistant',
+            content: typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql),
+            userMessage: typeof message === 'string' ? message : JSON.stringify(message)
+          });
+          // 执行SQL语句，获取查询结果
+          sqlList = [];
+          if (aiSql) {
+            // 支持多条SQL（分号分割，去除空行）
+            const sqlRaw = typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql);
+            sqlList = sqlRaw.split(';').map(s => s.trim()).filter(s => s.length > 0);
+          }
+          markdownResult = '';
+          markdownResult += '生成的SQL语句：\n';
+          markdownResult += '```sql\n' + (typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql)) + '\n```\n\n';
+          allQueryResults = [];
+          for (let i = 0; i < sqlList.length; i++) {
+            const sql = sqlList[i];
+            let queryResult = null;
+            try {
+              queryResult = await mcpService.runQuery(sql);
+            } catch (e) {
+              queryResult = 'SQL执行失败: ' + (e.message || e);
+            }
+            allQueryResults.push({ sql, queryResult });
+            markdownResult += `第${i+1}条SQL：\n`;
+            markdownResult += '```sql\n' + sql + '\n```\n';
+            markdownResult += '查询结果：\n';
+            markdownResult += toMarkdownTable(queryResult);
+            markdownResult += '\n\n';
+          }
+          // AI总结与验证
+          summary = null;
+          lastMessage = '';
+          lastSql = typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql);
+          for (let attempt = 0; attempt < MAX_VALIDATE_ATTEMPTS; attempt++) {
+            // 多条SQL时，拼接所有SQL和结果
+            let sqlSummary = sqlList.map((sql, idx) => `SQL${idx+1}: ${sql}\n结果: ${JSON.stringify(allQueryResults[idx].queryResult)}`).join('\n');
+            summary = await summarizeAndValidateResult({
+              question: message,
+              sql: sqlSummary,
+              queryResult: allQueryResults.map(r => r.queryResult),
+              lastMessage
+            });
+            // 检查AI总结内容是否包含SQL错误关键词，且未重试过
+            if (!retried && /SQL(查询|执行|语句).*错/.test(summary.message)) {
+              retried = true;
+              // 触发SQL重生成，跳出当前mainLoop，进入下一轮
+              break;
+            }
+            if (summary.isValid) break mainLoop;
+            lastMessage = summary.message;
+          }
         }
-        // 通过SSE返回markdown结果
+        // 通过SSE返回markdown结果和AI总结
         sendSSEMessage(res, 'chunk', { text: markdownResult });
-        // 保存最终查询结果到历史记录
+        let aiSummaryText = '';
+        if (summary && typeof summary === 'object' && summary.message) {
+          aiSummaryText = summary.message;
+        } else if (summary && typeof summary === 'string') {
+          // 处理AI返回的字符串为JSON或包含json/JSON字样的情况
+          let str = summary.trim();
+          // 尝试提取JSON对象
+          let jsonMatch = str.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              let obj = JSON.parse(jsonMatch[0]);
+              aiSummaryText = obj.message || jsonMatch[0];
+            } catch {
+              // 解析失败，去掉json/message等字样
+              aiSummaryText = str.replace(/json|JSON|message|：|:|\{|\}|"|\n/gi, '').trim();
+            }
+          } else {
+            // 没有JSON结构，直接去掉json/message等字样
+            aiSummaryText = str.replace(/json|JSON|message|：|:|\{|\}|"|\n/gi, '').trim();
+          }
+        } else {
+          aiSummaryText = '无';
+        }
+        sendSSEMessage(res, 'chunk', { text: `AI总结：${aiSummaryText}` });
+        // 保存最终查询结果和AI总结到历史记录
         await ChatHistory.create({
           userId: sessionId,
           sessionId: sessionId,
           role: 'assistant',
           content: typeof markdownResult === 'string' ? markdownResult : JSON.stringify(markdownResult),
+          userMessage: typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql)
+        });
+        await ChatHistory.create({
+          userId: sessionId,
+          sessionId: sessionId,
+          role: 'assistant',
+          content: aiSummaryText,
           userMessage: typeof aiSql === 'string' ? aiSql : JSON.stringify(aiSql)
         });
       } catch (error) {
@@ -412,6 +479,39 @@ function toMarkdownTable(data, options = {}) {
   } else {
     return typeof data === 'string' ? data : JSON.stringify(data, null, 2);
   }
+}
+
+// 最大AI验证尝试次数，可通过环境变量配置，默认3
+const MAX_VALIDATE_ATTEMPTS = parseInt(process.env.MAX_VALIDATE_ATTEMPTS, 10) || 3;
+
+/**
+ * AI总结并验证SQL查询结果
+ * @param {Object} params
+ * @param {string} params.question 用户原始问题
+ * @param {string} params.sql SQL语句
+ * @param {any} params.queryResult SQL查询结果
+ * @param {string} [params.lastMessage] 上一次AI总结（可选）
+ * @returns {Promise<{message: string, isValid: boolean}>}
+ */
+async function summarizeAndValidateResult({ question, sql, queryResult, lastMessage }) {
+  let prompt = `用户问题: ${question}\nSQL语句: ${sql}\n查询结果: ${JSON.stringify(queryResult)}\n`;
+  if (lastMessage) {
+    prompt += `\n上一次AI总结: ${lastMessage}\n`;
+  }
+  prompt += `\n请基于上面的SQL查询结果，给出简明的结论或解释，并判断该结果是否能很好地回答用户问题。\n返回如下JSON格式：\n{\n  "message": "你的总结/解释/建议",\n  "isValid": true/false\n}\n如果结果不理想，isValid为false，并说明原因。`;
+  const aiResponse = await chatService.sendToThirdPartyAPI(prompt);
+  let result;
+  try {
+    result = JSON.parse(aiResponse);
+  } catch (e) {
+    // 兜底处理
+    result = { message: aiResponse, isValid: false };
+  }
+  // 兼容AI未返回isValid字段的情况
+  if (typeof result.isValid !== 'boolean') {
+    result.isValid = false;
+  }
+  return result;
 }
 
 module.exports = {
